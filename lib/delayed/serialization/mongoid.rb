@@ -6,17 +6,23 @@ if YAML.parser.class.name =~ /syck/i
   Mongoid::Document.class_eval do
     yaml_as "tag:ruby.yaml.org,2002:Mongoid"
 
-    def self.yaml_new(klass, tag, val)
+    def self.yaml_new( klass, tag, val )
       begin
-        klass.find(val['attributes']['_id'])
+        klass.unscoped.find( val['_id'] )
       rescue Mongoid::Errors::DocumentNotFound
         raise Delayed::DeserializationError
       end
     end
 
-    def to_yaml_properties
-      ['@attributes']
-    end
+    def to_yaml( opts = {} )
+      return super unless YAML::ENGINE.syck?
+
+      YAML::quick_emit( self, opts ) do |out|
+        out.map( taguri, to_yaml_style ) do |map|
+          map.add( '_id', self._id.to_s )
+        end
+      end
+    end   
   end
 else
   Mongoid::Document.class_eval do
