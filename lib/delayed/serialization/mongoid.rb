@@ -24,7 +24,7 @@ Mongoid::Document.class_eval do
   end   
 
   def encode_with( coder )
-    coder[ "_id" ] = self._id.to_s
+    coder[ "attributes" ] = @attributes
     coder.tag = [ '!ruby/Mongoid', self.class.name ].join( ':' )
   end 
 end
