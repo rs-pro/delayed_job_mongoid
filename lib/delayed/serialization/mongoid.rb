@@ -15,8 +15,6 @@ if YAML.parser.class.name =~ /syck/i
     end
 
     def to_yaml( opts = {} )
-      return super unless YAML::ENGINE.syck?
-
       YAML::quick_emit( self, opts ) do |out|
         out.map( taguri, to_yaml_style ) do |map|
           map.add( '_id', self._id.to_s )
